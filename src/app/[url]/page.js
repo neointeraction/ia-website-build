@@ -1,6 +1,5 @@
 import React from "react";
 import { Box } from "@mantine/core";
-import Image from "next/image";
 
 import TextSlider from "@/components/TextSlider";
 import PageBanner from "@/page-components/PageBanner";
@@ -33,22 +32,17 @@ import Pulse from "@/images/SVGIcons/Pulse";
 import DeepTech from "@/images/SVGIcons/DeepTech";
 import BannerImg from "@/images/banner1.png";
 
-import Arrow from "@/images/title-arrow.svg";
-
-import {
-  accelerateMilestoneData,
-  faqData,
-  mentorsData,
-  successStoryData,
-} from "@/mock/data";
+import { accelerateMilestoneData, successStoryData } from "@/mock/data";
 
 import WhyFoundersChoseIA from "@/page-components/WhyFoundersChoseIA";
 import VideoSection from "@/page-components/VideoSection";
 
+const ISR_TIMEOUT = 60;
+
 async function fetchData(url) {
   const routeRes = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_API_URL}/route?acf_format=standard`,
-    { next: { revalidate: 3600 } }
+    { next: { revalidate: ISR_TIMEOUT } }
   );
   const routes = await routeRes.json();
   const route = routes[0]?.acf?.page_routes.find(
@@ -61,7 +55,7 @@ async function fetchData(url) {
 
   const pageRes = await fetch(
     `${process.env.NEXT_PUBLIC_BASE_API_URL}/pages/${route.ID}?acf_format=standard`,
-    { next: { revalidate: 3600 } }
+    { next: { revalidate: ISR_TIMEOUT } }
   );
   const pageData = await pageRes.json();
 
@@ -74,7 +68,7 @@ async function fetchData(url) {
           case "client-marquee":
             const clientMarqueeRes = await fetch(
               `${process.env.NEXT_PUBLIC_BASE_API_URL}/client-marquee/${block.ID}?acf_format=standard`,
-              { next: { revalidate: 3600 } }
+              { next: { revalidate: ISR_TIMEOUT } }
             );
             const clientMarqueeData = await clientMarqueeRes.json();
             block.data = clientMarqueeData.acf || {};
@@ -82,7 +76,7 @@ async function fetchData(url) {
           case "text-slider":
             const textSliderRes = await fetch(
               `${process.env.NEXT_PUBLIC_BASE_API_URL}/text-slider/${block.ID}?acf_format=standard`,
-              { next: { revalidate: 3600 } }
+              { next: { revalidate: ISR_TIMEOUT } }
             );
             const textSliderData = await textSliderRes.json();
             block.data = textSliderData.acf?.TextSlider || [];
@@ -90,12 +84,62 @@ async function fetchData(url) {
           case "page-banner":
             const pageBannerRes = await fetch(
               `${process.env.NEXT_PUBLIC_BASE_API_URL}/page-banner/${block.ID}?acf_format=standard`,
-              { next: { revalidate: 3600 } }
+              { next: { revalidate: ISR_TIMEOUT } }
             );
             const pageBannerData = await pageBannerRes.json();
-
             block.data = pageBannerData.acf || {};
-            console.log(block.data, "block.data");
+            break;
+          case "faq-section":
+            const faqRes = await fetch(
+              `${process.env.NEXT_PUBLIC_BASE_API_URL}/faq-section/${block.ID}?acf_format=standard`,
+              { next: { revalidate: ISR_TIMEOUT } }
+            );
+            const faqData = await faqRes.json();
+            block.data = faqData.acf || {};
+            break;
+          case "mentors-section":
+            const mentorsRes = await fetch(
+              `${process.env.NEXT_PUBLIC_BASE_API_URL}/mentors-section/${block.ID}?acf_format=standard`,
+              { next: { revalidate: ISR_TIMEOUT } }
+            );
+            const mentorsData = await mentorsRes.json();
+            block.data = mentorsData.acf || {};
+            break;
+          case "card-type-a-section": // TO BE MAPPED
+            const cardARes = await fetch(
+              `${process.env.NEXT_PUBLIC_BASE_API_URL}/card-type-a-section/${block.ID}?acf_format=standard`,
+              { next: { revalidate: ISR_TIMEOUT } }
+            );
+            const cardAData = await cardARes.json();
+            block.data = cardAData.acf || {};
+            console.log(cardAData, "cardAData block.data");
+            break;
+          case "card-type-b-section": // TO BE MAPPED
+            const cardBRes = await fetch(
+              `${process.env.NEXT_PUBLIC_BASE_API_URL}/card-type-b-section/${block.ID}?acf_format=standard`,
+              { next: { revalidate: ISR_TIMEOUT } }
+            );
+            const cardBData = await cardBRes.json();
+            block.data = cardBData.acf || {};
+            console.log(cardBData, "cardBData block.data");
+            break;
+          case "success-story": // TO BE MAPPED
+            const successStoryRes = await fetch(
+              `${process.env.NEXT_PUBLIC_BASE_API_URL}/success-story/${block.ID}?acf_format=standard`,
+              { next: { revalidate: ISR_TIMEOUT } }
+            );
+            const successStoryData = await successStoryRes.json();
+            block.data = successStoryData.acf || {};
+            console.log(successStoryData, "successStoryData block.data");
+            break;
+          case "video-section": // TO BE MAPPED
+            const videoRes = await fetch(
+              `${process.env.NEXT_PUBLIC_BASE_API_URL}/video-section/${block.ID}?acf_format=standard`,
+              { next: { revalidate: ISR_TIMEOUT } }
+            );
+            const videoData = await videoRes.json();
+            block.data = videoData.acf || {};
+            console.log(videoData, "videoData block.data");
             break;
           default:
             break;
@@ -150,11 +194,11 @@ export default async function DynamicPage({ params }) {
       {blocks.map((block, index) => {
         switch (block.post_type) {
           case "text-slider":
-            return <TextSlider id={block.ID} data={block.data} key={index} />;
+            return <TextSlider data={block.data} key={index} />;
           case "page-banner":
             return (
               <div className="Section" key={index}>
-                <PageBanner id={block.ID} data={block.data} />
+                <PageBanner data={block.data} />
               </div>
             );
           case "milestone-section":
@@ -185,21 +229,7 @@ export default async function DynamicPage({ params }) {
           case "mentors-section":
             return (
               <div className="Section" key={index}>
-                <MentorsSection
-                  title={
-                    <>
-                      <Box component="span" className="highlight">
-                        Expert Mentorship
-                      </Box>
-                      from Industry Leaders
-                      <Box component="span" ml={14}>
-                        <Image src={Arrow} alt="Arrow" width={24} height={24} />
-                      </Box>
-                    </>
-                  }
-                  subtitle="Our network of mentors helps startups overcome challenges and scale with confidence."
-                  data={mentorsData}
-                />
+                <MentorsSection data={block.data} />
               </div>
             );
           case "card-type-a-section":
@@ -410,7 +440,7 @@ export default async function DynamicPage({ params }) {
           case "faq-section":
             return (
               <div className="Section" key={index}>
-                <FAQSection title="Frequently Asked Questions" data={faqData} />
+                <FAQSection data={block.data} />
               </div>
             );
           case "why-founder-chose-ia":
